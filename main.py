@@ -20,11 +20,26 @@ MAX_CHARS = 200
 
 
 def validate_horoscope(text):
-    """Return the text if it passes the bounty gate, else raise ValueError."""
+    """Return the text if it passes the bounty gate, else raise ValueError.
+
+    Besides the bounty gate (1-200 characters, not only whitespace) this
+    also rejects leading/trailing whitespace and control characters: the
+    grader reads the file raw, so a stray space or control byte at either
+    end would silently change the entry the judge sees.
+    """
     if not isinstance(text, str):
         raise ValueError("horoscope must be a string")
     if not text.strip():
         raise ValueError("horoscope must not be empty or only whitespace")
+    if text != text.strip():
+        raise ValueError(
+            "horoscope must not start or end with whitespace"
+        )
+    for ch in text:
+        if ord(ch) < 0x20 or ord(ch) == 0x7F:
+            raise ValueError(
+                "horoscope must not contain control character U+%04X" % ord(ch)
+            )
     if len(text) < MIN_CHARS:
         raise ValueError(
             "horoscope is %d characters, below the minimum of %d"
